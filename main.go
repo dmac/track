@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
-	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -56,7 +56,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	dbFile := path.Join(usr.HomeDir, ".track.toml")
+	dbFile := filepath.Join(usr.HomeDir, ".track.toml")
 
 	db, err := readDB(dbFile)
 	if err != nil {
