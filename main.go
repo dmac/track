@@ -144,14 +144,14 @@ func doShow(tag string, db TrackDB) {
 }
 
 func readDB(dbFile string) (TrackDB, error) {
-	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
-		_, err := os.Create(dbFile)
-		if err != nil {
-			return nil, err
-		}
-	}
 	var db TrackDB
 	if _, err := toml.DecodeFile(dbFile, &db); err != nil {
+		if os.IsNotExist(err) {
+			if _, err := os.Create(dbFile); err != nil {
+				return nil, err
+			}
+			return db, nil
+		}
 		return nil, err
 	}
 	return db, nil
