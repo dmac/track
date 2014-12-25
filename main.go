@@ -83,8 +83,8 @@ func main() {
 	}
 }
 
-func doStart(tag string, db *TrackDB) {
-	entries := (*db)[tag]
+func doStart(tag string, db TrackDB) {
+	entries := db[tag]
 	var lastEntry TrackEntry
 	if len(entries) > 0 {
 		lastEntry = entries[len(entries)-1]
@@ -95,11 +95,11 @@ func doStart(tag string, db *TrackDB) {
 		fmt.Printf("Already started at %s\n", lastEntry.Start)
 		return
 	}
-	(*db)[tag] = append(entries, TrackEntry{Start: time.Now().Format("2006-01-02 15:04:05")})
+	db[tag] = append(entries, TrackEntry{Start: time.Now().Format("2006-01-02 15:04:05")})
 }
 
-func doStop(tag string, db *TrackDB) {
-	entries := (*db)[tag]
+func doStop(tag string, db TrackDB) {
+	entries := db[tag]
 	if len(entries) == 0 {
 		fmt.Printf("Unknown tag \"%s\"\n", tag)
 		return
@@ -112,8 +112,8 @@ func doStop(tag string, db *TrackDB) {
 	lastEntry.Stop = time.Now().Format("2006-01-02 15:04:05")
 }
 
-func doNote(tag string, note string, db *TrackDB) {
-	entries := (*db)[tag]
+func doNote(tag string, note string, db TrackDB) {
+	entries := db[tag]
 	if len(entries) == 0 {
 		fmt.Printf("Unknown tag \"%s\"\n", tag)
 		return
@@ -126,16 +126,16 @@ func doNote(tag string, note string, db *TrackDB) {
 	lastEntry.Notes = append(lastEntry.Notes, note)
 }
 
-func doShow(tag string, db *TrackDB) {
+func doShow(tag string, db TrackDB) {
 	if tag == "all" {
-		for t, _ := range *db {
+		for t, _ := range db {
 			doShow(t, db)
 		}
 		return
 	}
 
 	fmt.Println(tag)
-	for _, entry := range (*db)[tag] {
+	for _, entry := range db[tag] {
 		fmt.Printf("\t%s - %s\n", entry.Start, entry.Stop)
 		for _, note := range entry.Notes {
 			fmt.Printf("\t\t%s\n", note)
@@ -143,7 +143,7 @@ func doShow(tag string, db *TrackDB) {
 	}
 }
 
-func readDB(dbFile string) (*TrackDB, error) {
+func readDB(dbFile string) (TrackDB, error) {
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
 		_, err := os.Create(dbFile)
 		if err != nil {
@@ -154,10 +154,10 @@ func readDB(dbFile string) (*TrackDB, error) {
 	if _, err := toml.DecodeFile(dbFile, &db); err != nil {
 		return nil, err
 	}
-	return &db, nil
+	return db, nil
 }
 
-func writeDB(dbFile string, db *TrackDB) error {
+func writeDB(dbFile string, db TrackDB) error {
 	w, err := os.Create(dbFile)
 	if err != nil {
 		return err
